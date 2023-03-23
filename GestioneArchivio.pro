@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    IPreviewIcon.cpp \
     IScene.cpp \
     Processing/IMat.cpp \
     Processing/IPFlow.cpp \
@@ -17,6 +18,7 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    IPreviewIcon.h \
     IScene.h \
     Processing/IMat.h \
     Processing/IPFlow.h \
@@ -24,6 +26,7 @@ HEADERS += \
     mainwindow.h
 
 FORMS += \
+    IPreviewIcon.ui \
     mainwindow.ui
 
 # Default rules for deployment.

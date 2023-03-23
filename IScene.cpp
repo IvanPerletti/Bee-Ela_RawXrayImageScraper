@@ -247,7 +247,7 @@ uint32_t IScene::processImg(const IMat & mDstRgb, QImage &HistRgb)
     }
 
     //Change value of pixels
-    uint32_t sum=0;
+    uint32_t sum = 5381;
     for(int32_t ii = 0; ii < lRows; ii++)
     {
         for(int32_t jj = 0; jj < lCols; jj++)
@@ -255,7 +255,7 @@ uint32_t IScene::processImg(const IMat & mDstRgb, QImage &HistRgb)
             u16PxlVal = mDstRgb.at<uint16_t>(ii,jj);
             u16PxlVal = u16aLut[u16PxlVal];
             mDstRgb.at<uint16_t>(ii,jj) = u16PxlVal;
-            sum += u16PxlVal;
+            sum = ((sum << 5) + sum) ^ static_cast<uint32_t>( u16PxlVal);
         }
     }
 

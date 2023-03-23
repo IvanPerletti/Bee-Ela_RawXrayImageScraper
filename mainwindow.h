@@ -25,7 +25,7 @@ public:
 private slots:
 
     void on_listWidget_currentRowChanged(int currentRow);
-
+    void on_item_Clicked(QString strFileFullNameRaw);
     void on_pbnProcess_clicked();
 
     void on_pbnRefresh_clicked();

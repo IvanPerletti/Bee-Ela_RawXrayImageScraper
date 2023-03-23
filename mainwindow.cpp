@@ -12,7 +12,8 @@
 #include <QWidget>
 #include <QtSql>
 #include <QDebug>
-
+#include <QScrollBar>
+#include <IPreviewIcon.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -27,10 +28,8 @@ MainWindow::~MainWindow()
 }
 
 //------------------------------------------------------------------------------
-
-void MainWindow::on_listWidget_currentRowChanged(int currentRow)
+void MainWindow::on_item_Clicked(QString strFileFullNameRaw)
 {
-    QString strFileFullNameRaw = listfilepath.at(currentRow);
     QImage m_imgOut, HistRgb(2048, 1000, QImage::Format_Grayscale8);
     QString strFileFullNamepng = strFileFullNameRaw;
     strFileFullNamepng.replace(".Dat", ".png");
@@ -73,7 +72,6 @@ void MainWindow::on_listWidget_currentRowChanged(int currentRow)
         }
     }
 
-
     ui->label->setPixmap(pix);
     ui->label->setScaledContents(true);
 
@@ -82,7 +80,15 @@ void MainWindow::on_listWidget_currentRowChanged(int currentRow)
 
     ui->label_2->setText("Premi F2 per copiare");
 
+}
 
+
+
+//------------------------------------------------------------------------------
+void MainWindow::on_listWidget_currentRowChanged(int currentRow)
+{
+    QString strFileFullNameRaw = listfilepath.at(currentRow);
+  on_item_Clicked(strFileFullNameRaw);
 }
 
 //------------------------------------------------------------------------------
@@ -153,13 +159,13 @@ void MainWindow::on_pbnProcess_clicked()
     DbImages.setDatabaseName("C:/Users/Utente/Desktop/qt/GestioneArchivio/Images Database.sqlite");
     if(!DbImages.open())
     {
-     qDebug()<<"Database not open";
+        qDebug()<<"Database not open";
     }
 
     QString Query = "CREATE TABLE Images ("
-                          "FileName string,"
-                          "FilePath string,"
-                          "Id uint32_t);";
+                    "FileName string,"
+                    "FilePath string,"
+                    "Id uint32_t);";
 
     QSqlQuery DatabaseQuery;
     if(!DatabaseQuery.exec(Query))
@@ -217,13 +223,13 @@ void MainWindow::on_pbnProcess_clicked()
     //find duplicates images
 
     QString strQuery477 =
-    " select *                       "
-    "   from Images a                "
-    "  where ( Id  ) in              "
-    "        ( select  Id            "
-    "            from Images         "
-    "           group by  Id         "
-    "          having count(Id) > 1 )" ;
+            " select *                       "
+            "   from Images a                "
+            "  where ( Id  ) in              "
+            "        ( select  Id            "
+            "            from Images         "
+            "           group by  Id         "
+            "          having count(Id) > 1 )" ;
 
     QSqlQuery DbDuplicatesQuery;
     DbDuplicatesQuery.exec(strQuery477);
@@ -258,7 +264,10 @@ void MainWindow::on_pbnRefresh_clicked()
     InputPath.remove('"');
     listdirpath.append(InputPath);
     bool bSaveImage = false;
+    QListWidget * pLsv = ui->listWidget;
+    int32_t iScrollLevel = pLsv->verticalScrollBar()->value();
 
+    pLsv->clear();
     //for each folder control if contains other folders
     for(int ii=0; ii<index+1 ; ii++){
 
@@ -279,7 +288,7 @@ void MainWindow::on_pbnRefresh_clicked()
                 strFileFullNamepng.replace(".Dat", ".png");
                 QFile filePng (strFileFullNamepng);
                 QFile fileRaw (strFileFullNameRaw);
-
+                QString strFileName = listfilenameTemp.at(i).toLatin1();
                 // no png, need to process
 
                 if(filePng.exists()==false && fileRaw.exists()==true)
@@ -289,7 +298,17 @@ void MainWindow::on_pbnRefresh_clicked()
                 }
 
                 m_imgOut = QImage();
-                ui->listWidget->addItem(listfilenameTemp.at(i).toLatin1());
+
+
+                QListWidgetItem *listWidgetItem = new QListWidgetItem(pLsv);
+                pLsv->addItem (listWidgetItem);
+                pLsv->verticalScrollBar()->setValue(iScrollLevel);
+                IPreviewIcon *pPreviewIcon = new IPreviewIcon(strFileName.right( 10 ), strFileFullNameRaw);
+                listWidgetItem->setSizeHint ( pPreviewIcon->sizeHint () );
+                pLsv->setItemWidget (listWidgetItem, pPreviewIcon);
+
+                //                connect(pPreviewIcon, SIGNAL(doubleClicked(QString)), this, SLOT(on_item_doubleClicked(QString)));
+                connect(pPreviewIcon, SIGNAL(clicked(QString)), this, SLOT(on_item_Clicked(QString)));
                 error++;
 
 
