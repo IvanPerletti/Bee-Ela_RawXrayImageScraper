@@ -23,6 +23,7 @@ public:
     ~MainWindow();
 
 private slots:
+    void resizeEvent(QResizeEvent *event);
 
     void on_listWidget_currentRowChanged(int currentRow);
     void on_item_Clicked(QString strFileFullNameRaw);

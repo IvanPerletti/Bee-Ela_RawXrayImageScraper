@@ -147,6 +147,9 @@ void MainWindow::on_pbnProcess_clicked()
     listdirpath.append(InputPath);
     bool bSaveImage = false;
     uint32_t sum = 0;
+    QListWidget * pLsv = ui->listWidget;
+    int32_t iScrollLevel = pLsv->verticalScrollBar()->value();
+    pLsv->clear();
 
     //create a database
 
@@ -192,10 +195,21 @@ void MainWindow::on_pbnProcess_clicked()
 
                 QString strFullFileName = listfilepath.at(error);
                 bool bProcessOk = false;
+                QString strFileName = listfilenameTemp.at(i).toLatin1();
 
                 std::tie(sum,bProcessOk) = IScene :: processFileName(strFullFileName, m_imgOut, HistRgb, bSaveImage);
                 m_imgOut = QImage();
-                ui->listWidget->addItem(listfilenameTemp.at(i).toLatin1());
+
+                QListWidgetItem *listWidgetItem = new QListWidgetItem(pLsv);
+                pLsv->addItem (listWidgetItem);
+                pLsv->verticalScrollBar()->setValue(iScrollLevel);
+                IPreviewIcon *pPreviewIcon = new IPreviewIcon(strFileName.right( 10 ), strFullFileName);
+                listWidgetItem->setSizeHint ( pPreviewIcon->sizeHint () );
+                pLsv->setItemWidget (listWidgetItem, pPreviewIcon);
+
+                //                connect(pPreviewIcon, SIGNAL(doubleClicked(QString)), this, SLOT(on_item_doubleClicked(QString)));
+                connect(pPreviewIcon, SIGNAL(clicked(QString)), this, SLOT(on_item_Clicked(QString)));
+
                 error++;
 
                 AddValues(listfilenameTemp.at(i), listdirpath[x], sum);
@@ -254,6 +268,7 @@ void MainWindow::on_pbnRefresh_clicked()
 
     listdirpath.clear();
     dirinfolist.clear();
+    listfilepath.clear();
     ui->listWidget->blockSignals(true);
     ui->listWidget->clear();
     ui->listWidget->blockSignals(false);
@@ -336,6 +351,12 @@ void MainWindow::on_pbnRefresh_clicked()
 }
 
 
+
+void MainWindow :: resizeEvent(QResizeEvent *event)
+{
+    on_pbnRefresh_clicked();
+    QWidget::resizeEvent(event);
+}
 
 
 
