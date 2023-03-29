@@ -8,6 +8,7 @@
 #include <QListWidgetItem>
 #include <QtSql>
 #include <IScene.h>
+#include <secdialog.h>
 
 
 QT_BEGIN_NAMESPACE
@@ -35,6 +36,8 @@ private slots:
 
     void AddValues(QString FileName, QString FilePath, double Id);
 
+    void on_pbnDuplicate_clicked();
+
 private:
     Ui::MainWindow *ui;
 
@@ -43,7 +46,9 @@ private:
     QFileInfoList dirinfolist;
     int index=0, a=0, x=0;
     QStringList listfilepath;
-
+    QStringList FullFileName;
+    QList <uint32_t> IdList;
     QSqlDatabase DbImages;
+
 };
 #endif // MAINWINDOW_H

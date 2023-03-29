@@ -15,7 +15,8 @@ SOURCES += \
     Processing/IPFlow.cpp \
     Processing/ITimePerform.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    secdialog.cpp
 
 HEADERS += \
     IPreviewIcon.h \
@@ -23,11 +24,13 @@ HEADERS += \
     Processing/IMat.h \
     Processing/IPFlow.h \
     Processing/ITimePerform.h \
-    mainwindow.h
+    mainwindow.h \
+    secdialog.h
 
 FORMS += \
     IPreviewIcon.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    secdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

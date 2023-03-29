@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QScrollBar>
 #include <IPreviewIcon.h>
+#include <secDialog.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -78,7 +79,7 @@ void MainWindow::on_item_Clicked(QString strFileFullNameRaw)
     ui->HistLabel->setPixmap(pixHist);
     ui->HistLabel->setScaledContents(true);
 
-    ui->label_2->setText("Premi F2 per copiare");
+    ui->PressF2->setText("Premi F2 per copiare");
 
 }
 
@@ -248,8 +249,8 @@ void MainWindow::on_pbnProcess_clicked()
     QSqlQuery DbDuplicatesQuery;
     DbDuplicatesQuery.exec(strQuery477);
 
-    QStringList FullFileName;
-    QList <uint32_t> IdList;
+    FullFileName.clear();
+    IdList.clear();
     while (DbDuplicatesQuery.next())
     {
         IdList.append(DbDuplicatesQuery.value(2).toInt());
@@ -283,6 +284,23 @@ void MainWindow::on_pbnRefresh_clicked()
     int32_t iScrollLevel = pLsv->verticalScrollBar()->value();
 
     pLsv->clear();
+
+    QSqlDatabase DbImages;
+    QFile FileDb ("C:/Users/Utente/Desktop/qt/GestioneArchivio/Images Database.sqlite");
+    if(FileDb.exists())
+    {
+
+        DbImages = QSqlDatabase :: addDatabase("QSQLITE");
+        DbImages.setDatabaseName("C:/Users/Utente/Desktop/qt/GestioneArchivio/Images Database.sqlite");
+    }
+
+    if(!DbImages.open())
+    {
+        qDebug()<<"Database not open";
+    }
+
+
+
     //for each folder control if contains other folders
     for(int ii=0; ii<index+1 ; ii++){
 
@@ -344,9 +362,34 @@ void MainWindow::on_pbnRefresh_clicked()
 
     }
 
-    if(error==0){
+    if(error==0)
+    {
         QMessageBox :: warning(this, "Error", "Nessun file .Dat trovato");
     }
+
+    //Find duplicates images
+
+    QString strQuery477 =
+            " select *                       "
+            "   from Images a                "
+            "  where ( Id  ) in              "
+            "        ( select  Id            "
+            "            from Images         "
+            "           group by  Id         "
+            "          having count(Id) > 1 )" ;
+
+    QSqlQuery DbDuplicatesQuery;
+    DbDuplicatesQuery.exec(strQuery477);
+
+    FullFileName.clear();
+    IdList.clear();
+    while (DbDuplicatesQuery.next())
+    {
+        IdList.append(DbDuplicatesQuery.value(2).toInt());
+        FullFileName.append(DbDuplicatesQuery.value(1).toString() + "/" + DbDuplicatesQuery.value(0).toString());
+    }
+
+    DbImages.close();
 
 }
 
@@ -386,3 +429,10 @@ void MainWindow :: AddValues(QString FileName, QString FilePath, double Id)
     }
 
 }
+
+void MainWindow::on_pbnDuplicate_clicked()
+{
+    SecDialog *psecDialog = new SecDialog( FullFileName, IdList);
+    psecDialog->show();
+}
+
